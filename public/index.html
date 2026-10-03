@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QuickPoll — Online Poll Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="public-page">
+  <nav class="topbar">
+    <a class="brand" href="#user" onclick="showView('user');return false"><span class="brand-icon">▮▮▮</span><span>QuickPoll</span></a>
+    <div class="nav-links">
+      <a id="userNav" class="active" href="#user" onclick="showView('user');return false">Home</a>
+      <a id="adminNav" href="#admin" onclick="showView('admin');return false">Admin</a>
+      <a href="#about" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'});return false">About</a>
+    </div>
+    <span class="platform-pill">Online Poll Platform</span>
+  </nav>
+
+  <main id="userView" class="public-main app-view">
+    <section class="hero">
+      <div class="hero-kicker">QUICK • SIMPLE • SECURE</div>
+      <h1>Your Opinion <span>Matters</span></h1>
+      <p>Vote on interesting polls and see what others think.</p>
+    </section>
+    <section id="polls" class="poll-grid" aria-live="polite"></section>
+  </main>
+
+  <main id="adminView" class="admin-shell app-view hidden">
+    <aside class="sidebar">
+      <a class="side-brand" href="#user" onclick="showView('user');return false"><span class="brand-icon">▮▮▮</span><span><b>QuickPoll</b><small>Management</small></span></a>
+      <nav class="side-nav">
+        <a class="selected" href="#admin" onclick="showAdminSection('manage');return false">☷ <span>Manage Polls</span></a>
+        <a href="#admin" onclick="showAdminSection('results');return false">▥ <span>View Results</span></a>
+        <a href="#user" onclick="showView('user');return false">◉ <span>Public Site</span></a>
+      </nav>
+      <div class="admin-user"><div class="avatar">A</div><div><b>Administrator</b><small><i></i> Local session</small></div></div>
+    </aside>
+
+    <section class="admin-main">
+      <header class="admin-header">
+        <div><div class="section-kicker">ADMINISTRATOR</div><h1 id="adminHeading">Manage Polls</h1><p>Create, update, activate, deactivate and delete polls from the same application.</p></div>
+        <div class="admin-head-actions"><button class="view-site-btn" onclick="showView('user')">View Public Site ↗</button><button class="outline-btn" onclick="logout()">↪ Logout</button></div>
+      </header>
+
+      <div id="loginCard" class="login-card hidden">
+        <div class="login-icon">🔐</div><div><h2>Admin access</h2><p>Enter your Admin Key to manage polls.</p></div>
+        <div class="inline-field"><input id="tokenLogin" type="password" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')login()"><button class="primary-btn" onclick="login()">Continue</button></div>
+      </div>
+
+      <section id="manageSection" class="admin-layout">
+        <section class="panel create-panel">
+          <div class="panel-title"><span class="panel-icon">＋</span><div><h2 id="formTitle">Create New Poll</h2><p>Build a poll for your audience</p></div></div>
+          <input type="hidden" id="editingId">
+          <label>Question<input id="question" placeholder="Enter your poll question"></label>
+          <label>Description <em>(optional)</em><textarea id="description" placeholder="Enter a short description"></textarea></label>
+          <label>Options <em>(one per line)</em><textarea id="options" placeholder="Option 1&#10;Option 2&#10;Option 3&#10;Option 4"></textarea></label>
+          <div class="form-actions"><button id="saveBtn" class="primary-btn wide" onclick="savePoll()">＋ Add Poll</button><button id="cancelBtn" class="secondary-btn hidden" onclick="resetForm()">Cancel</button></div>
+        </section>
+        <section class="panel existing-panel">
+          <div class="panel-title results-title"><span class="panel-icon">☷</span><div><h2>Existing Polls</h2><p>Monitor and manage your polls</p></div><button class="icon-btn" onclick="loadAdmin()" title="Refresh">↻</button></div>
+          <div id="adminPolls" class="admin-polls"></div>
+        </section>
+      </section>
+
+      <section id="resultsSection" class="results-dashboard hidden">
+        <div class="panel"><div class="panel-title"><span class="panel-icon">▥</span><div><h2>Poll Results</h2><p>Live summary of all polls and votes</p></div></div><div id="resultsCards" class="results-cards"></div></div>
+      </section>
+    </section>
+  </main>
+
+  <footer id="about" class="footer">QuickPoll · Simple online polling for everyone · MongoDB + Express + Node.js</footer>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+import {Router} from 'express';
+import Poll from '../models/Poll.js';
+const router=Router();
+const admin=(req,res,next)=>{if(req.headers.authorization!==`Bearer ${process.env.ADMIN_TOKEN}`) return res.status(401).json({error:'Unauthorized'});next()};
+const clean=p=>({id:p._id,question:p.question,description:p.description,options:p.options,isActive:p.isActive,createdAt:p.createdAt,updatedAt:p.updatedAt,totalVotes:p.options.reduce((s,o)=>s+o.votes,0)});
+router.get('/',async(req,res)=>{try{const all=req.query.admin==='true'; if(all && req.headers.authorization!==`Bearer ${process.env.ADMIN_TOKEN}`) return res.status(401).json({error:'Unauthorized'}); const polls=await Poll.find(all?{}:{isActive:true}).sort({createdAt:-1});res.json(polls.map(clean))}catch(e){res.status(500).json({error:e.message})}});
+router.get('/:id',async(req,res)=>{try{const p=await Poll.findById(req.params.id);if(!p||(!p.isActive&&req.query.admin!=='true'))return res.status(404).json({error:'Poll not found'});res.json(clean(p))}catch(e){res.status(400).json({error:'Invalid poll id'})}});
+router.post('/:id/vote',async(req,res)=>{try{const {optionId}=req.body;const p=await Poll.findOneAndUpdate({_id:req.params.id,isActive:true,'options._id':optionId},{$inc:{'options.$.votes':1}},{new:true});if(!p)return res.status(404).json({error:'Poll or option not found'});res.json(clean(p))}catch(e){res.status(400).json({error:'Invalid vote'})}});
+router.post('/',admin,async(req,res)=>{try{const p=await Poll.create(req.body);res.status(201).json(clean(p))}catch(e){res.status(400).json({error:e.message})}});
+router.put('/:id',admin,async(req,res)=>{try{const p=await Poll.findByIdAndUpdate(req.params.id,{$set:req.body},{new:true,runValidators:true});if(!p)return res.status(404).json({error:'Poll not found'});res.json(clean(p))}catch(e){res.status(400).json({error:e.message})}});
+router.delete('/:id',admin,async(req,res)=>{try{const p=await Poll.findByIdAndDelete(req.params.id);if(!p)return res.status(404).json({error:'Poll not found'});res.json({ok:true})}catch(e){res.status(400).json({error:'Invalid poll id'})}});
+export default router;
